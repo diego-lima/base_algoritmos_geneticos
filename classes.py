@@ -33,7 +33,10 @@ class Cromossomo:
 
     @staticmethod
     def reproduzir(pai: 'Cromossomo', mae: 'Cromossomo') -> List['Cromossomo']:
-        """Combina os genes dos dois cromossoos para gerar um novo"""
+        """Combina os genes dos dois cromossoos para gerar um novo.
+
+        Se houverem vários métodos de reprodução implementados, Cromossomo.reproduzir deve redirecionar
+        para o método default de reprodução."""
         raise NotImplementedError("Esse método deve ser definido pela classe herdeira")
 
     def __repr__(self):
