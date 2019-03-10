@@ -17,11 +17,11 @@ if __name__ == "__main__":
     REPRODUCAO = 0 # 0 significa "default"
     # Chance de mutação
     CHANCE_MUTACAO = 0.03
-    OBJETIVO = Objetivos.MINIMIZAR
+    # OBJETIVO = Objetivos.MINIMIZAR
     # Qual classe se responsabilizará pelo manuseio dos cromossomos
     classe_cromossomo = CromossomoQuadraticoDecimal
     # Vamos guardar um histórico de todas gerações
-    historico = []
+    # historico = []
 
     """
     TRIAGEM / PROCESSO
@@ -65,8 +65,10 @@ if __name__ == "__main__":
                 cromossomos_filhos.extend(classe_cromossomo.reproduzir(*pais))
 
         """Mutação"""
-
+        # chamamos a função mutacionar em cima de cada cromossomo que chegou até aqui.
+        # essa funço já se encarrega em girar o dado pra ver se vai acontecer a mutação
         cromossomos = [classe_cromossomo.mutacionar(filho, CHANCE_MUTACAO) for filho in cromossomos_filhos]
 
+    # fora do laço principal, vou printar todos os cromossomos, mostrando o gene e a aptidão
     for cromossomo in cromossomos:
         print(cromossomo)
