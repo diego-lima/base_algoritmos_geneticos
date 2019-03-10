@@ -7,7 +7,8 @@ class CromossomoQuadratico(Cromossomo):
     """
     Essa classe vai tratar do problema de encontrar o mínimo da função y = x^2
     Os cromossomos são uma sequência de 7 bits, onde o primeiro bit é o bit de sinal
-    ou seja, os cromossomos representarão números inteiros entre -63 e +63
+    ou seja, os cromossomos representarão números inteiros entre -64 e +63
+    observação: o método gerar() só gera números a partir de 0
     """
 
     @staticmethod
