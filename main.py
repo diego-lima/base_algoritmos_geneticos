@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # Quantas gerações queremos ter
     NUM_GERACOES = 150
     # Método de seleção
-    SELECAO = Selecoes.TORNEIO
+    SELECAO = Selecoes.ROLETA
     # Método de reprodução
     REPRODUCAO = 0 # 0 significa "default"
     # Chance de mutação
@@ -33,6 +33,7 @@ if __name__ == "__main__":
     cromossomos = [classe_cromossomo.gerar() for x in range(TAM_POPULACAO)]
 
     for _ in range(NUM_GERACOES):
+        print(_)
         # TODO historico
 
         """Seleção"""

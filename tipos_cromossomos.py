@@ -124,3 +124,74 @@ class CromossomoQuadraticoDecimal(Cromossomo):
         filho_2 = mae.genes + margem * choice(sinal)
 
         return [CromossomoQuadraticoDecimal(filho_1), CromossomoQuadraticoDecimal(filho_2)]
+
+
+class CromossomoCilindroParabolico(Cromossomo):
+    """
+    Essa classe vai tratar do problema de encontrar o mínimo da função z = x^2 - 2 x y + 6 x + y^2 - 6 y
+    Dessa vez, os cromossomos serão valores numéricos na representação decimal mesmo.
+    """
+
+    @staticmethod
+    def gerar():
+        """Geramos dois números aleatórios entre -numero_maximo e +numero_maximo"""
+        numero_maximo = 63
+
+        numero1 = choice([1, -1]) * numero_maximo * random()
+        numero2 = choice([1, -1]) * numero_maximo * random()
+
+        return CromossomoCilindroParabolico([numero1, numero2])
+
+    @staticmethod
+    def avaliar(cromossomo):
+        """Avalia a aptidão do cromossomo."""
+
+        def funcao(x,y):
+            return x**2 - 2*x*y + 6*x + y**2 - 6*y
+
+        return funcao(*cromossomo.genes)
+
+    @staticmethod
+    def mutacionar(cromossomo: 'CromossomoCilindroParabolico', chance_mutacao: float = 0.03):
+        """Modifica aleatoriamente o gene do cromossomo. Essa mutação tem uma chance chance_mutacao de acontecer.
+        A mutação é assim: quando ela acontece, damos uma variação aleatória entre 0 e 10% do valor numérico do gene."""
+
+        if random() > chance_mutacao:
+            # Não modificar
+            return cromossomo
+
+        variacao1 = 0.1 * random() * choice([1, -1])
+        variacao2 = 0.1 * random() * choice([1, -1])
+
+        novos_genes = [
+            cromossomo.genes[0] + cromossomo.genes[0] * variacao1,
+            cromossomo.genes[1] + cromossomo.genes[1] * variacao2
+        ]
+
+        return CromossomoCilindroParabolico(novos_genes)
+
+    @staticmethod
+    def reproduzir(pai: 'CromossomoCilindroParabolico', mae: 'CromossomoCilindroParabolico'):
+        """A reprodução está sendo assim: eu calculo a "margem" entre os genes do pai e da mãe, que é como se fosse
+        o desvio padrão entre eles dois, só que menor (porque eu divido por três).
+        Dai, eu aplico essa margem aleatoriamente pra cima ou pra baixo no pai, gerando um filho,
+        e pra cima ou pra baixo na mãe, gerando outro filho.
+        """
+
+        margem1 = abs(pai.genes[0] - mae.genes[0]) / 3
+        margem2 = abs(pai.genes[1] - mae.genes[1]) / 3
+
+        sinal = [1, -1]
+
+        genes_filho_1 = [
+            pai.genes[0] + margem1 * choice(sinal),
+            pai.genes[1] + margem2 * choice(sinal),
+
+        ]
+        genes_filho_2 = [
+            mae.genes[0] + margem1 * choice(sinal),
+            mae.genes[1] + margem2 * choice(sinal),
+
+        ]
+
+        return [CromossomoCilindroParabolico(genes_filho_1), CromossomoCilindroParabolico(genes_filho_2)]
