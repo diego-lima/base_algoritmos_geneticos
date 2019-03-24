@@ -182,11 +182,6 @@ class Planta:
         - Esta é a função que gera o polígono da planta. O polígono é construído com base nas pontas
         das paredes. Também, o polígono é o que usamos pra dizer se um ponto está dentro ou fora
         da planta.
-
-        parte da origem.
-        Encontra os 4 vizinhos do ponto atual.
-        Para cada vizinho não encontrado, visita e expande.
-        Para quando não aparecer nenhum novo.
         """
 
         """
