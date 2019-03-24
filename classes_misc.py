@@ -244,17 +244,47 @@ class Planta:
             # Acrescento seus vizinhos na fila para serem verificados
             fifo.extend(novo_ponto.calcular_vizinhos(self.granularidade))
 
-    def encontrar(self, p: Ponto):
+    def encontrar(self, p: Union[Ponto, List[Union[float, int]]]):
         """
-        A FAZER!
-        parte da origem.
-        aumenta o x e o y em +- granularidade.
-        se a distância  for menor que a hipotenusa/2, encontrei.
-        se não, se a distância for menor do que a hipotenusa, vá na direção do ponto e veja se encontra.
-        se nunca acontecer, o ponto não está dentro.
+        Retorna qual é o ponto correspondente às coordenadas passadas.
+
+        Já que a área dentro da planta foi "discretizada", se você me der um ponto qualquer, eu te digo
+        qual é o ponto correspondente na discretização que foi feita a partir da granularidade passada.
+
+        Observação: nem sempre retorna qual o ponto discreto mais próximo, porque sempre arredondo as
+        coordenadas pra baixo!
         """
-        pass
-        # if not found: raise exception
+
+        if isinstance(p, Ponto):
+            pass
+        elif not isinstance(p, list):
+            # não é ponto nem lista: problemas!
+            raise Exception("Informe o ponto como um objeto Ponto ou lista de coordenadas")
+        elif len(p) < 2:
+            # não é ponto, mas é lista e não tem pelo menos 2 itens? problemas!
+            raise Exception("Informe o ponto com todas suas coordenadas!")
+        else:
+            for x in p:
+                # não é ponto, é lista, tem pelo menos 2 itens: vamos ver se todos itens são numéricos!
+                if not isinstance(x, (float, int)):
+                    raise Exception("As coordenadas do ponto precisam ser float ou int!")
+            p = Ponto(*p)
+
+        # quantas "granularidades" inteiras temos da origem até o ponto, no eixo x?
+        delta_x = int((p.x - self.origem.x) / self.granularidade)
+        # quantas "granularidades" inteiras temos da origem até o ponto, no eixo y?
+        delta_y = int((p.y - self.origem.y) / self.granularidade)
+
+        estimativa = [
+            self.origem.x + delta_x * self.granularidade,
+            self.origem.y + delta_y * self.granularidade
+        ]
+
+        estimativa = Ponto(*estimativa)
+
+        if self.poligono.contains(estimativa):
+            return estimativa
+        return None
 
     def avaliar(self, p: Ponto):
         """
