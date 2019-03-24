@@ -1,5 +1,5 @@
 from bitstring import Bits
-from classes import *
+from classes_ga import *
 from random import randrange as numero_aleatorio, random, choice
 
 
