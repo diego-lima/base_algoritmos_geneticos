@@ -1,5 +1,5 @@
 from collections import deque as fila
-from shapely.geometry import MultiPoint, Polygon, Point
+from shapely.geometry import MultiPoint, Polygon, Point, LineString
 from typing import Union, List
 
 import random
@@ -29,6 +29,13 @@ def distancia_entre_pontos(p1: 'Ponto', p2: 'Ponto'):
     Retorna a distância euclidiana entre dois pontos.
     """
     return (abs(p1.x - p2.x)**2 + abs(p1.y - p2.y)**2) ** 0.5
+
+
+def line_intersection(line1, line2):
+
+    line1 = LineString([(line1[0].x, line1[0].y),(line1[1].x,line1[1].y)])
+    line2 = LineString([(line2[0].x, line2[0].y),(line2[1].x,line2[1].y)])
+    return line1.intersection(line2)
 
 
 class Ponto(Point):
@@ -168,6 +175,7 @@ class Planta:
         for ponto in self.pontos_internos:
             self.avaliar(ponto)
 
+
     def procurar_pontos_internos(self):
         """
         Escolhe um ponto de partida (ou seja, uma origem) e vai pulando de vizinho em vizinho até
@@ -294,7 +302,7 @@ class Planta:
         if not isinstance(p, Ponto):
             raise Exception("A função de avaliar deve receber um objeto Ponto como parâmetro.")
 
-        return self.avaliar_aleatoriamente(p)
+        return self.avaliar_perda_paredes(p)
 
     def avaliar_aleatoriamente(self, p: Ponto):
         """
@@ -309,21 +317,35 @@ class Planta:
 
         return distancia_entre_pontos(p, self.origem)
 
+    def avaliar_perda_paredes(self, p: Ponto):
+        """
+        Retorna a quantidade de paredes que o sinal do roteador intercepta até chegar no ponto p.
+        """
+        fonte = self.fontes[0]
+        intersecoes = []
+        for parede in self.pontos_paredes:
+            if line_intersection(parede, [fonte, p]):
+                intersecoes.append(parede)
+        return intersecoes
+
 
 if __name__ == "__main__":
     print("LEMBRETES:")
     print("o cromossomo precisa conhecer a planta!")
     print("lembre de definir a granularidade como uma variável nas configurações.\n\n")
 
-    planta = Planta(0.4)
-    planta.adicionar_parede(Ponto(0, 0), Ponto(1, 0))
-    planta.adicionar_parede(Ponto(1, 0), Ponto(1, 1))
-    planta.adicionar_parede(Ponto(1, 1), Ponto(0, 1))
-    planta.adicionar_parede(Ponto(0, 1), Ponto(0, 0))
+    planta = Planta(2)
+    planta.adicionar_parede(Ponto(0, 10), Ponto(5, 10))
+    planta.adicionar_parede(Ponto(5, 10), Ponto(5, 0))
+    planta.adicionar_parede(Ponto(5, 0), Ponto(0, 0))
+    planta.adicionar_parede(Ponto(0, 0), Ponto(0, 10))
+    planta.adicionar_parede(Ponto(0, 10), Ponto(5, 0))
 
     print("pontos internos (antes de calcular): ", planta.pontos_internos)
     planta.procurar_pontos_internos()
     print("pontos internos: ", planta.pontos_internos)
+
+    planta.simular_fontes(Ponto(2,8))
 
     print("resultado de avaliar() passando a origem:", planta.avaliar(planta.origem))
 
