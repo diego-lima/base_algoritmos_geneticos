@@ -1,6 +1,7 @@
 from collections import deque as fila
 from shapely.geometry import MultiPoint, Polygon, Point, LineString
 from typing import Union, List
+from math import log10
 
 import random
 
@@ -175,7 +176,6 @@ class Planta:
         for ponto in self.pontos_internos:
             self.avaliar(ponto)
 
-
     def procurar_pontos_internos(self):
         """
         Escolhe um ponto de partida (ou seja, uma origem) e vai pulando de vizinho em vizinho até
@@ -302,7 +302,7 @@ class Planta:
         if not isinstance(p, Ponto):
             raise Exception("A função de avaliar deve receber um objeto Ponto como parâmetro.")
 
-        return self.avaliar_perda_paredes(p)
+        return self.avaliar_recepcao_sinal(p)
 
     def avaliar_aleatoriamente(self, p: Ponto):
         """
@@ -326,7 +326,45 @@ class Planta:
         for parede in self.pontos_paredes:
             if line_intersection(parede, [fonte, p]):
                 intersecoes.append(parede)
+
         return intersecoes
+
+    def avaliar_recepcao_sinal(self, p: Ponto):
+        """
+        A função que iremos utilizar é a da página 179 do livro projetando WLAN.
+
+        A atenuação do sinal pode ser medido através da seguinte fórmula:
+        L = L(d0) + 10*n*log(d)
+
+        L(d0): é a perda de propagação de referência a um metro de distância em dB. Esse valor é tabelado de acordo com
+        a faixa de frequência, como vamos trabalhar com 2.4GHZ, então o valor de L(d0) será 40.2 dB
+
+        n: Gradiente distância-potência, é o decaimento da potência após uma distância em metros. Utilizaremos o valor
+        2.8 que é para obstrução média
+
+        d: distância do transmissor para o receptor
+
+        para calcular o nível de recepcao usaremos a somamos os ganhos e perdas:
+
+        Iremos utilizar como base o roteador Roteador Wireless IWR 1000N que tem Potência de 20dBm e ganho da antena
+        5dbi, então:
+
+        (25 - L) - n*atenuação parede interna - n*atenuação parede externa
+
+        atenuação parede interna: 4db
+
+        atenuação parede externa: 18db
+        """
+        potencia_transmissor = 20
+        ganho_antena = 5
+        atenuacao_parede = 4
+        quantidade_paredes = self.avaliar_perda_paredes(p)
+        distancia_transmissor_receptor = distancia_entre_pontos(p, self.fontes[0])
+        atenuacao_propagacao = 40.2 + 10*log10(distancia_transmissor_receptor)
+
+        p.valor = potencia_transmissor + ganho_antena - atenuacao_propagacao - len(quantidade_paredes)*atenuacao_parede
+
+        return p.valor
 
 
 if __name__ == "__main__":
