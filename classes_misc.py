@@ -156,7 +156,7 @@ class Planta:
 
         self.pontos_paredes.append(pontos)
 
-    def simular_fontes(self, *fontes: List[Ponto]):
+    def simular_fontes(self, *fontes: Ponto):
         """
         Avalia a intensidade do sinal em todos os pontos internos de acordo com as fontes informadas.
 
@@ -362,9 +362,9 @@ class Planta:
         distancia_transmissor_receptor = distancia_entre_pontos(p, self.fontes[0])
         atenuacao_propagacao = 40.2 + 10*log10(distancia_transmissor_receptor)
 
-        p.valor = potencia_transmissor + ganho_antena - atenuacao_propagacao - len(quantidade_paredes)*atenuacao_parede
+        p.valor = abs(potencia_transmissor + ganho_antena - atenuacao_propagacao - len(quantidade_paredes)*atenuacao_parede)
 
-        return p.valor
+        return abs(p.valor)
 
 
 if __name__ == "__main__":

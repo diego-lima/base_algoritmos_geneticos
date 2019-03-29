@@ -195,3 +195,27 @@ class CromossomoCilindroParabolico(Cromossomo):
         ]
 
         return [CromossomoCilindroParabolico(genes_filho_1), CromossomoCilindroParabolico(genes_filho_2)]
+
+
+class CromossomoPotencia(Cromossomo):
+
+    planta = None
+    k = 1
+
+    @staticmethod
+    def gerar():
+        genes = choices(list(CromossomoPotencia.planta.pontos_internos), k=CromossomoPotencia.k)
+        return CromossomoPotencia(genes)
+
+    @staticmethod
+    def avaliar(cromossomo: 'Cromossomo'):
+        CromossomoPotencia.planta.simular_fontes(*cromossomo.genes)
+        return min([ponto.valor for ponto in CromossomoPotencia.planta.pontos_internos])
+
+    @staticmethod
+    def reproduzir(pai: 'Cromossomo', mae: 'Cromossomo'):
+        pass
+
+    @staticmethod
+    def mutacionar(cromossomo: 'Cromossomo', chance_mutacao: float):
+        pass
