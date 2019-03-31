@@ -34,8 +34,8 @@ def distancia_entre_pontos(p1: 'Ponto', p2: 'Ponto'):
 
 def line_intersection(line1, line2):
 
-    line1 = LineString([(line1[0].x, line1[0].y),(line1[1].x,line1[1].y)])
-    line2 = LineString([(line2[0].x, line2[0].y),(line2[1].x,line2[1].y)])
+    line1 = LineString([(line1[0].x, line1[0].y), (line1[1].x, line1[1].y)])
+    line2 = LineString([(line2[0].x, line2[0].y), (line2[1].x, line2[1].y)])
     return line1.intersection(line2)
 
 
@@ -304,18 +304,12 @@ class Planta:
 
         return self.avaliar_recepcao_sinal(p)
 
-    def avaliar_aleatoriamente(self, p: Ponto):
-        """
-        Retorna simplesmente um número aleatório, só pra brincar
-        """
-        return random.random()
-
     def avaliar_distancia_simples(self, p: Ponto):
         """
         Retorna a distância entre o ponto e a origem. Só pra brincar
         """
-
-        return distancia_entre_pontos(p, self.origem)
+        p.valor = distancia_entre_pontos(p, self.origem)
+        return p.valor
 
     def avaliar_perda_paredes(self, p: Ponto):
         """
@@ -358,11 +352,11 @@ class Planta:
         potencia_transmissor = 20
         ganho_antena = 5
         atenuacao_parede = 4
-        quantidade_paredes = self.avaliar_perda_paredes(p)
+        qtd_paredes = len(self.avaliar_perda_paredes(p))
         distancia_transmissor_receptor = distancia_entre_pontos(p, self.fontes[0])
         atenuacao_propagacao = 40.2 + 10*log10(distancia_transmissor_receptor)
 
-        p.valor = abs(potencia_transmissor + ganho_antena - atenuacao_propagacao - len(quantidade_paredes)*atenuacao_parede)
+        p.valor = abs(potencia_transmissor + ganho_antena - atenuacao_propagacao - qtd_paredes*atenuacao_parede)
 
         return abs(p.valor)
 
@@ -372,18 +366,21 @@ if __name__ == "__main__":
     print("o cromossomo precisa conhecer a planta!")
     print("lembre de definir a granularidade como uma variável nas configurações.\n\n")
 
-    planta = Planta(2)
-    planta.adicionar_parede(Ponto(0, 10), Ponto(5, 10))
-    planta.adicionar_parede(Ponto(5, 10), Ponto(5, 0))
-    planta.adicionar_parede(Ponto(5, 0), Ponto(0, 0))
-    planta.adicionar_parede(Ponto(0, 0), Ponto(0, 10))
-    planta.adicionar_parede(Ponto(0, 10), Ponto(5, 0))
+    planta = Planta(4)
+    lado_quadrado = 20
+    """Estamos fazendo um quadrado de lado lado_quadrado, que a ponta inferior esquerda tá na origem"""
+    planta.adicionar_parede(Ponto(0, lado_quadrado), Ponto(lado_quadrado, lado_quadrado))
+    planta.adicionar_parede(Ponto(lado_quadrado, lado_quadrado), Ponto(lado_quadrado, 0))
+    planta.adicionar_parede(Ponto(lado_quadrado, 0), Ponto(0, 0))
+    planta.adicionar_parede(Ponto(0, 0), Ponto(0, lado_quadrado))
 
-    print("pontos internos (antes de calcular): ", planta.pontos_internos)
-    planta.procurar_pontos_internos()
-    print("pontos internos: ", planta.pontos_internos)
+    planta.simular_fontes(Ponto(10,9))
 
-    planta.simular_fontes(Ponto(2,8))
+    print("Os pontos e seus valores:")
+    for ponto in planta.pontos_internos:
+        print("%30s %s" % (ponto, ponto.valor))
+
+    print("\n\n")
 
     print("resultado de avaliar() passando a origem:", planta.avaliar(planta.origem))
 
