@@ -77,26 +77,20 @@ def sortear_roleta(cromossomos: list, avaliadora, qtd: int, objetivo: Objetivos 
     Recebe também a quantidade de cromossomos a serem selecionados.
     O parâmetro substituicao decide se um mesmo cromossomo pode ser selecionado mais de uma vez (há substituição).
 
-    Retorna uma lista com os cromossomos relecionados.
+    Retorna uma lista com os cromossomos escolhidos.
 
     A chance de um cromossomo ser sorteado é proporcional ao seu score dentre todos os outros scores.
 
-    Se o objetivo for MINIMIZAR, as menores aptidões terão mais chances. Se não, as maiores que terão.
+    Se o objetivo for MAXIMIZAR, as maiores aptidões serão selecionadas para sobreviver.
 
-    OBSERVAÇÃO: a soma das chances só é 100% se o objetivo for MAXIMIZAR. Se for minimizar, passa de 100%,
-    ou seja, o menor score pode ter uma chance de 75%, o segundo de 50%, o terceiro de 30%...
+    Se o objetivo for MINIMIZAR, as maiores aptidões serão selecionadas para morrer, deixando as menores viver.
+
+    OBSERVAÇÃO: Se houver substituição (substituicao = True) e o objetivo for minimizar, pode acontecer de eu retornar
+    mais cromossomos do que foi pedido (com o parâmetro qtd)
     """
     # Vamos copiar a lista de cromossomos, pra não mexer na lista original, que foi passada
     lista_de_cromossomos = list()
     lista_de_cromossomos.extend(cromossomos)
-
-    lista_de_fitness_scores = [avaliadora(x) for x in lista_de_cromossomos]
-
-    """Definir a forma de comparação, dependendo do objetivo"""
-    if objetivo == Objetivos.MINIMIZAR:
-        comparar = lambda sorteado, score: sorteado >= score
-    else:
-        comparar = lambda sorteado, score: sorteado <= score
 
     """Gerar as faixas de cada cromossomo"""
     acumulador_faixa = 0
@@ -107,15 +101,18 @@ def sortear_roleta(cromossomos: list, avaliadora, qtd: int, objetivo: Objetivos 
         lista_de_faixas.append(acumulador_faixa)
 
     total = lista_de_faixas[-1]
-
-    if objetivo == Objetivos.MINIMIZAR:
-        # A linha abaixo é só pra prevenir que o último cromossomo tenha 0% de chance, no caso de minimizar objetivo.
-        # estamos aumentando a faixa do último
-        lista_de_faixas[-1] += avaliadora(lista_de_cromossomos[-1])
-
     cromossomos_selecionados = []
     indices_cromossomos_escolhidos = set()
 
+    """Definir a forma de contagem, dependendo do objetivo"""
+    if objetivo == Objetivos.MAXIMIZAR:
+        # vou selecionar quem sobrevive: não muda nada
+        pass
+    else:
+        # vou selecionar quem morre: a quantidade é invertida
+        qtd = len(lista_de_cromossomos) - qtd
+
+    """Começar a seleção"""
     while len(cromossomos_selecionados) < qtd:
         # Gerar um número entre 0 e o total de pontos de score
         numero_sorteado = total * random()
@@ -126,12 +123,16 @@ def sortear_roleta(cromossomos: list, avaliadora, qtd: int, objetivo: Objetivos 
                 # vamos pular esse, que já foi escolhido
                 continue
 
-            if comparar(numero_sorteado, aptidao):
+            if numero_sorteado <= aptidao:
                 cromossomos_selecionados.append(lista_de_cromossomos[indice])
                 indices_cromossomos_escolhidos.add(indice)
                 break
 
-    return cromossomos_selecionados
+    """Definir o retorno: os que sobreviveram ou os que morreram?"""
+    if objetivo == Objetivos.MAXIMIZAR:
+        return cromossomos_selecionados
+    else:
+        return [c for c in lista_de_cromossomos if c not in cromossomos_selecionados]
 
 
 def sortear_torneio(cromossomos: list, avaliadora, qtd: int, objetivo: Objetivos = Objetivos.MINIMIZAR):
