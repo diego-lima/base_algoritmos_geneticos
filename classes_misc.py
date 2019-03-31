@@ -374,11 +374,11 @@ if __name__ == "__main__":
     planta.adicionar_parede(Ponto(lado_quadrado, 0), Ponto(0, 0))
     planta.adicionar_parede(Ponto(0, 0), Ponto(0, lado_quadrado))
 
-    planta.simular_fontes(Ponto(10,9))
+    planta.simular_fontes(Ponto(10, 9))
 
     print("Os pontos e seus valores:")
-    for ponto in planta.pontos_internos:
-        print("%30s %s" % (ponto, ponto.valor))
+    for pi in planta.pontos_internos:
+        print("%30s %s" % (pi, pi.valor))
 
     print("\n\n")
 

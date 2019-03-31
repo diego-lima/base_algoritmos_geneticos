@@ -1,5 +1,6 @@
 from bitstring import Bits
 from classes_ga import *
+from classes_misc import *
 from random import randrange as numero_aleatorio, random, choice
 
 
@@ -146,7 +147,7 @@ class CromossomoCilindroParabolico(Cromossomo):
     def avaliar(cromossomo):
         """Avalia a aptidão do cromossomo."""
 
-        def funcao(x,y):
+        def funcao(x, y):
             return x**2 - 2*x*y + 6*x + y**2 - 6*y
 
         return funcao(*cromossomo.genes)
@@ -204,18 +205,85 @@ class CromossomoPotencia(Cromossomo):
 
     @staticmethod
     def gerar():
+        if not CromossomoPotencia.planta.pontos_internos:
+            raise Exception("falta calcular pontos internos antes de gerar")
         genes = choices(list(CromossomoPotencia.planta.pontos_internos), k=CromossomoPotencia.k)
         return CromossomoPotencia(genes)
 
     @staticmethod
     def avaliar(cromossomo: 'Cromossomo'):
         CromossomoPotencia.planta.simular_fontes(*cromossomo.genes)
-        return min([ponto.valor for ponto in CromossomoPotencia.planta.pontos_internos])
+        return max([ponto.valor for ponto in CromossomoPotencia.planta.pontos_internos])
 
     @staticmethod
     def reproduzir(pai: 'Cromossomo', mae: 'Cromossomo'):
-        pass
+        """A reprodução está sendo assim: eu calculo a "margem" entre os genes do pai e da mãe, que é como se fosse
+        o desvio padrão de cada coordenada entre eles dois.
+
+        Dai, eu aplico essa margem aleatoriamente pra cima ou pra baixo no pai, gerando um filho,
+        e pra cima ou pra baixo na mãe, gerando outro filho.
+
+        Como cada cromossomo pode guardar a posição de várias fon tes nos seus genes, eu faço assim:
+
+        pego a margem entre o primeiro roteador do pai e o primeiro roteador da mãe, e dou o primeiro roteador filho
+        e repito para os roteadores seguintes
+        """
+
+        genes_filho_1 = []
+        genes_filho_2 = []
+
+        sinal = [1, -1]
+
+        for genes in zip(pai.genes, mae.genes):
+            achou = False
+            while not achou:
+                # Para cada gene do pai e da mãe, vamos gerar dois filhos. Enquanto tiver algum filho caindo
+                # fora da planta, vamos ficar reproduzindo.
+
+                """Margem entre o roteador do pai e roteador da mãe"""
+                margem_x = abs(genes[0].x - genes[1].x) / 2
+                margem_y = abs(genes[0].y - genes[1].y) / 2
+
+                """Gerando um filho no entorno do pai"""
+                novo_gene_1 = Ponto(
+                    genes[0].x + margem_x * choice(sinal),
+                    genes[0].y + margem_y * choice(sinal)
+                )
+                novo_gene_1 = CromossomoPotencia.planta.encontrar(novo_gene_1)
+
+                """Gerando um filho no entorno da mãe"""
+                novo_gene_2 = Ponto(
+                    genes[1].x + margem_x * choice(sinal),
+                    genes[1].y + margem_y * choice(sinal)
+                )
+                novo_gene_2 = CromossomoPotencia.planta.encontrar(novo_gene_2)
+
+                if all((novo_gene_1, novo_gene_2)):
+                    achou = True
+                    genes_filho_1.append(novo_gene_1)
+                    genes_filho_2.append(novo_gene_2)
+
+        return [CromossomoPotencia(genes_filho_1), CromossomoPotencia(genes_filho_2)]
 
     @staticmethod
     def mutacionar(cromossomo: 'Cromossomo', chance_mutacao: float):
         pass
+
+
+if __name__ == "__main__":
+    planta = Planta(4)
+    lado_quadrado = 20
+    """Estamos fazendo um quadrado de lado lado_quadrado, que a ponta inferior esquerda tá na origem"""
+    planta.adicionar_parede(Ponto(0, lado_quadrado), Ponto(lado_quadrado, lado_quadrado))
+    planta.adicionar_parede(Ponto(lado_quadrado, lado_quadrado), Ponto(lado_quadrado, 0))
+    planta.adicionar_parede(Ponto(lado_quadrado, 0), Ponto(0, 0))
+    planta.adicionar_parede(Ponto(0, 0), Ponto(0, lado_quadrado))
+
+    planta.procurar_pontos_internos()
+
+    CromossomoPotencia.planta = planta
+    CromossomoPotencia.k = 2
+
+    cromossomos = [CromossomoPotencia.gerar(), CromossomoPotencia.gerar()]
+
+    print()
