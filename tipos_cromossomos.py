@@ -267,7 +267,35 @@ class CromossomoPotencia(Cromossomo):
 
     @staticmethod
     def mutacionar(cromossomo: 'Cromossomo', chance_mutacao: float):
-        pass
+        """A mutação é simples: pega um dos vizinhos de cada fonte no gene.
+
+        Se eu não conseguir encontrar um vizinho que esteja DENTRO da planta com até 8 tentativas,
+        eu não mudo aquela fonte."""
+
+        if random() > chance_mutacao:
+            # Não modificar
+            return cromossomo
+
+        novo_cromossomo = []
+
+        for gene in cromossomo.genes: # vamos tentar achar um vizinho pra cada fonte dentro dos genes...
+            vizinho = choice(gene.vizinhos)
+            achou = False
+            for _ in range(8):
+                # Um ponto pode ter um vizinho fora da planta. Vamos tentar achar um vizinho dentro da planta até 8
+                # vezes.
+                if CromossomoPotencia.planta.encontrar(vizinho):
+                    achou = True
+                    break
+                vizinho = choice(gene.vizinhos)
+
+            if not achou:
+                # infelizmente não achei um vizinho. aquela parte do gene vai permanecer como está
+                vizinho = gene
+
+            novo_cromossomo.append(vizinho)
+
+        return CromossomoPotencia(novo_cromossomo)
 
 
 if __name__ == "__main__":
