@@ -40,7 +40,7 @@ class Cromossomo:
         raise NotImplementedError("Esse método deve ser definido pela classe herdeira")
 
     def __repr__(self):
-        return "%s (%.0f)" % (self.genes, self.__class__.avaliar(self))
+        return "%s (%.2f)" % (self.genes, self.__class__.avaliar(self))
 
 
 """ENUMERAÇÕES"""
@@ -88,15 +88,13 @@ def sortear_roleta(cromossomos: list, avaliadora, qtd: int, objetivo: Objetivos 
     OBSERVAÇÃO: Se houver substituição (substituicao = True) e o objetivo for minimizar, pode acontecer de eu retornar
     mais cromossomos do que foi pedido (com o parâmetro qtd)
     """
-    # Vamos copiar a lista de cromossomos, pra não mexer na lista original, que foi passada
-    lista_de_cromossomos = list()
-    lista_de_cromossomos.extend(cromossomos)
 
     """Gerar as faixas de cada cromossomo"""
+
     acumulador_faixa = 0
     lista_de_faixas = []
 
-    for cromossomo in lista_de_cromossomos:
+    for cromossomo in cromossomos:
         acumulador_faixa += avaliadora(cromossomo)
         lista_de_faixas.append(acumulador_faixa)
 
@@ -110,7 +108,7 @@ def sortear_roleta(cromossomos: list, avaliadora, qtd: int, objetivo: Objetivos 
         pass
     else:
         # vou selecionar quem morre: a quantidade é invertida
-        qtd = len(lista_de_cromossomos) - qtd
+        qtd = len(cromossomos) - qtd
 
     """Começar a seleção"""
     while len(cromossomos_selecionados) < qtd:
@@ -124,7 +122,7 @@ def sortear_roleta(cromossomos: list, avaliadora, qtd: int, objetivo: Objetivos 
                 continue
 
             if numero_sorteado <= aptidao:
-                cromossomos_selecionados.append(lista_de_cromossomos[indice])
+                cromossomos_selecionados.append(cromossomos[indice])
                 indices_cromossomos_escolhidos.add(indice)
                 break
 
@@ -132,7 +130,7 @@ def sortear_roleta(cromossomos: list, avaliadora, qtd: int, objetivo: Objetivos 
     if objetivo == Objetivos.MAXIMIZAR:
         return cromossomos_selecionados
     else:
-        return [c for c in lista_de_cromossomos if c not in cromossomos_selecionados]
+        return [c for c in cromossomos if c not in cromossomos_selecionados]
 
 
 def sortear_torneio(cromossomos: list, avaliadora, qtd: int, objetivo: Objetivos = Objetivos.MINIMIZAR):

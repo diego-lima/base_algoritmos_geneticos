@@ -164,6 +164,7 @@ class Planta:
         """
 
         # Se algum dos itens abaixo for none, chamamos a função que os seta
+
         checks = (self.pontos_internos, self.origem, self.poligono)
         if any([x is None for x in checks]):
             self.procurar_pontos_internos()
@@ -174,6 +175,8 @@ class Planta:
 
         # A função abaixo seta o valor de cada ponto de acordo com as fontes.
         for ponto in self.pontos_internos:
+            if ponto in self.fontes:
+                continue
             self.avaliar(ponto)
 
     def procurar_pontos_internos(self):
@@ -286,6 +289,11 @@ class Planta:
         estimativa = Ponto(*estimativa)
 
         if self.poligono.contains(estimativa):
+            for pi in self.pontos_internos:
+                if pi == estimativa:
+                    # Isso serve para retornar o mesmo objeto que tem dentro de pontos_internos,
+                    # para não perder a informação de vizinhos
+                    return pi
             return estimativa
         return None
 

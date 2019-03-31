@@ -6,11 +6,11 @@ if __name__ == "__main__":
     CONFIGURAÇÕES
     """
     # Quantos indivíduos vamos gerar
-    TAM_POPULACAO = 60
+    TAM_POPULACAO = 12
     # A geração, quantos cromossomos passam pela seleção
-    QTD_SELECIONADOS = 12
+    QTD_SELECIONADOS = 5
     # Quantas gerações queremos ter
-    NUM_GERACOES = 150
+    NUM_GERACOES = 25
     # Método de seleção
     SELECAO = Selecoes.ROLETA
     # Método de reprodução
@@ -19,25 +19,37 @@ if __name__ == "__main__":
     CHANCE_MUTACAO = 0.03
     # OBJETIVO = Objetivos.MINIMIZAR
     # Qual classe se responsabilizará pelo manuseio dos cromossomos
-    classe_cromossomo = CromossomoQuadraticoDecimal
-    # Vamos guardar um histórico de todas gerações
-    # historico = []
+    classe_cromossomo = CromossomoPotencia
+
+    """
+    SETUP DA CLASSE DE CROMOSSOMO
+    """
+    GRANULARIDADE_PLANTA = 4
+    QUANTIDADE_ROTEADORES = 1
+    lado_quadrado = 20
+
+    planta = Planta(GRANULARIDADE_PLANTA)
+    """Estamos fazendo um quadrado de lado lado_quadrado, que a ponta inferior esquerda tá na origem"""
+    planta.adicionar_parede(Ponto(0, lado_quadrado), Ponto(lado_quadrado, lado_quadrado))
+    planta.adicionar_parede(Ponto(lado_quadrado, lado_quadrado), Ponto(lado_quadrado, 0))
+    planta.adicionar_parede(Ponto(lado_quadrado, 0), Ponto(0, 0))
+    planta.adicionar_parede(Ponto(0, 0), Ponto(0, lado_quadrado))
+
+    planta.procurar_pontos_internos()
+    print("Temos %d pontos internos." % len(planta.pontos_internos))
+    CromossomoPotencia.planta = planta
+    CromossomoPotencia.k = QUANTIDADE_ROTEADORES
 
     """
     TRIAGEM / PROCESSO
     """
-
-    """População inicial"""
 
     # Geramos TAM_POPULACAO cromossomos aleatoriamente
     cromossomos = [classe_cromossomo.gerar() for x in range(TAM_POPULACAO)]
 
     for _ in range(NUM_GERACOES):
         print(_)
-        # TODO historico
-
         """Seleção"""
-
         if SELECAO == Selecoes.ROLETA:
             cromossomos_selecionados = sortear_roleta(cromossomos, classe_cromossomo.avaliar, QTD_SELECIONADOS)
 

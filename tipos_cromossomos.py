@@ -213,7 +213,8 @@ class CromossomoPotencia(Cromossomo):
     @staticmethod
     def avaliar(cromossomo: 'Cromossomo'):
         CromossomoPotencia.planta.simular_fontes(*cromossomo.genes)
-        return max([ponto.valor for ponto in CromossomoPotencia.planta.pontos_internos])
+        # Vamos pular os pontos que são fontes
+        return max([ponto.valor for ponto in CromossomoPotencia.planta.pontos_internos if ponto not in CromossomoPotencia.planta.fontes])
 
     @staticmethod
     def reproduzir(pai: 'Cromossomo', mae: 'Cromossomo'):
